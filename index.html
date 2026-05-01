@@ -1,0 +1,1331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>April 15th — 3,800m to the Titanic</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <style>
+/* @tokens */
+:root {
+  --ds-color-primary: #5BC0BE;
+  --ds-color-secondary: #F5C542;
+  --ds-color-text: #F0F4F8;
+  --ds-font-heading: 'Space Grotesk', sans-serif;
+  --ds-font-body: 'Space Grotesk', sans-serif;
+  --ds-font-mono: 'Share Tech Mono', monospace;
+  --ds-space-section: 0px;
+  --ds-width-container: 1200px;
+}
+
+/* @reset */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body, h1, h2, h3, h4, h5, h6, p { margin: 0; }
+h1, h2, h3, h4, h5, h6 { color: inherit; font: inherit; }
+a { text-decoration: none; color: inherit; }
+img { max-width: 100%; height: auto; display: block; }
+
+/* @base */
+body {
+  background: transparent;
+  color: var(--ds-color-text);
+  font-family: var(--ds-font-body);
+  overflow-x: hidden;
+}
+
+/* @section intro */
+
+/* Initial body background — set here (not @base) so BB doesn't mirror it to .fl-ds-block */
+body {
+  background: rgb(14, 165, 233);
+}
+
+:root {
+  --text: #F0F4F8;
+  --text-mid: rgba(240, 244, 248, 0.6);
+  --text-dim: rgba(240, 244, 248, 0.25);
+  --accent: #5BC0BE;
+  --hud-bg: rgba(0, 0, 0, 0.35);
+  --hud-border: rgba(255, 255, 255, 0.08);
+  --bubble-opacity: 0.15;
+  --bio-opacity: 0;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  background-size: 180px 180px;
+  opacity: 0.035;
+  pointer-events: none;
+  z-index: 200;
+}
+
+/* Intro section — container only, opacity never set on this element */
+.intro {
+  height: 100vh;
+  position: relative;
+  z-index: 10;
+  background: transparent;
+}
+
+/* Intro text content — this is the element that fades on scroll */
+.intro-content {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  text-align: center;
+  padding: 8vh 24px 0;
+  position: relative;
+  z-index: 2;
+}
+
+.intro-depth {
+  font-family: var(--ds-font-mono);
+  font-size: 14px;
+  letter-spacing: 0.3em;
+  color: var(--text-mid);
+  margin-bottom: 16px;
+}
+
+.intro h1 {
+  font-size: clamp(56px, 12vw, 140px);
+  font-weight: 700;
+  letter-spacing: -0.05em;
+  line-height: 1;
+  margin-bottom: 20px;
+  text-shadow: 0 0 60px rgba(91, 192, 190, 0.55), 0 0 120px rgba(91, 192, 190, 0.2), 0 4px 24px rgba(0, 0, 0, 0.55);
+}
+
+.intro-sub {
+  font-size: 18px;
+  font-weight: 300;
+  color: var(--text-mid);
+  margin-bottom: 12px;
+}
+
+.intro-date {
+  font-family: var(--ds-font-mono);
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.7);
+  letter-spacing: 0.1em;
+  text-shadow: 0 1px 10px rgba(0, 0, 0, 0.5);
+}
+
+/* Scroll prompt is a direct child of .intro so it positions against 100vh */
+.scroll-prompt {
+  position: absolute;
+  bottom: 48px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 3;
+  font-family: var(--ds-font-mono);
+  font-size: 12px;
+  letter-spacing: 0.15em;
+  color: rgba(255, 255, 255, 0.8);
+  text-shadow: 0 1px 10px rgba(0, 0, 0, 0.5);
+  text-align: center;
+  line-height: 2;
+  white-space: nowrap;
+}
+
+.scroll-prompt .arrow {
+  font-size: 20px;
+  display: block;
+  animation: bounce 2s ease-in-out infinite;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(6px); }
+}
+
+@media (max-width: 768px) {
+  .intro h1 { font-size: clamp(44px, 14vw, 80px); }
+}
+
+/* @section ocean-descent */
+
+/* Fixed overlays live in ocean-descent's DOM but are viewport-fixed.
+   ocean-descent's opacity is never animated, so these are always independent. */
+.light-rays {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  overflow: hidden;
+  transition: opacity 0.3s;
+}
+
+.ray {
+  position: absolute;
+  top: -120%;
+  height: 320%;
+  background: linear-gradient(180deg, rgba(255,255,255,0.04) 0%, transparent 55%);
+  filter: blur(25px);
+  animation: sway 10s ease-in-out infinite alternate;
+}
+
+@keyframes sway {
+  from { transform: var(--ray-transform) translateX(-8px); }
+  to { transform: var(--ray-transform) translateX(8px); }
+}
+
+.particles {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 6;
+  overflow: hidden;
+  opacity: 0;
+  transition: opacity 0.8s ease;
+}
+
+.bubble {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, var(--bubble-opacity));
+  animation: rise linear infinite;
+}
+
+@keyframes rise {
+  0% { transform: translateY(110vh) translateX(0); opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { transform: translateY(-20px) translateX(30px); opacity: 0; }
+}
+
+.bio-dot {
+  position: absolute;
+  border-radius: 50%;
+  animation: blink ease-in-out infinite;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 0; box-shadow: none; }
+  50% { opacity: var(--bio-opacity); box-shadow: 0 0 6px 2px currentColor; }
+}
+
+.submarine {
+  position: fixed;
+  left: 50%;
+  top: 45%;
+  z-index: 30;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.6s ease;
+}
+
+.submarine.active { opacity: 1; }
+.sub-inner { transition: transform 0.08s ease; }
+
+.sonar-ping {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 30px;
+  height: 30px;
+  margin: -15px 0 0 -15px;
+  border: 1px solid var(--accent);
+  border-radius: 50%;
+  opacity: 0;
+  animation: sonar 4s ease-out infinite;
+  pointer-events: none;
+}
+
+@keyframes sonar {
+  0% { width: 30px; height: 30px; margin: -15px 0 0 -15px; opacity: 0.3; }
+  100% { width: 220px; height: 220px; margin: -110px 0 0 -110px; opacity: 0; }
+}
+
+.hud {
+  position: fixed;
+  top: 28px;
+  left: 28px;
+  z-index: 50;
+  font-family: var(--ds-font-mono);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+.hud.active { opacity: 1; }
+
+.depth-readout {
+  background: var(--hud-bg);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid var(--hud-border);
+  border-radius: 8px;
+  padding: 16px 20px;
+  min-width: 130px;
+}
+
+.depth-value {
+  font-size: 38px;
+  font-weight: 400;
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+
+.depth-unit {
+  font-size: 13px;
+  color: var(--text-mid);
+  letter-spacing: 0.08em;
+  margin-top: 2px;
+}
+
+.zone-name {
+  margin-top: 14px;
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  color: var(--accent);
+}
+
+.hud-stats {
+  margin-top: 8px;
+  font-size: 10px;
+  color: var(--text-dim);
+  letter-spacing: 0.04em;
+  line-height: 1.8;
+}
+
+.depth-track {
+  position: fixed;
+  left: 28px;
+  top: 200px;
+  bottom: 60px;
+  width: 2px;
+  background: rgba(255, 255, 255, 0.04);
+  z-index: 50;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+.depth-track.active { opacity: 1; }
+
+.track-fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background: var(--accent);
+  border-radius: 1px;
+  transition: height 0.15s linear;
+}
+
+.track-pip {
+  position: absolute;
+  left: -3px;
+  width: 8px;
+  height: 8px;
+  background: var(--accent);
+  border-radius: 50%;
+  transition: top 0.15s linear;
+}
+
+.zone-tick {
+  position: absolute;
+  left: 8px;
+  font-family: var(--ds-font-mono);
+  font-size: 8px;
+  letter-spacing: 0.1em;
+  color: var(--text-dim);
+  white-space: nowrap;
+}
+
+.zone-tick::before {
+  content: '';
+  position: absolute;
+  left: -10px;
+  top: 50%;
+  width: 4px;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.15);
+}
+
+/* Zone tick vertical positions — BB DS strips inline style, use nth-child instead */
+#depthTrack > .zone-tick:nth-child(3) { top: 5.3%; }
+#depthTrack > .zone-tick:nth-child(4) { top: 26.3%; }
+#depthTrack > .zone-tick:nth-child(5) { top: auto; bottom: 0; }
+
+/* Ocean descent content */
+.ocean-descent { padding: 0; background: transparent; }
+.ocean { position: relative; background: transparent; }
+.markers-list { position: static; }
+.marker-depth-meta { display: none; }
+.marker-title:empty,
+.marker-text:empty { display: none; }
+
+
+.surface-vessel {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 75vh;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 1;
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 22%, black 72%, transparent 100%);
+  mask-image: linear-gradient(to bottom, transparent 0%, black 22%, black 72%, transparent 100%);
+}
+.surface-vessel img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+  display: block;
+}
+
+.surface-line {
+  position: absolute;
+  top: 0;
+  left: 10%;
+  right: 10%;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  z-index: 5;
+}
+
+.surface-line::before,
+.surface-line::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.surface-line span {
+  font-family: var(--ds-font-mono);
+  font-size: 10px;
+  letter-spacing: 0.3em;
+  color: rgba(255, 255, 255, 0.3);
+  white-space: nowrap;
+}
+
+.zone-divider {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent 5%, rgba(91, 192, 190, 0.1) 25%, rgba(91, 192, 190, 0.1) 75%, transparent 95%);
+  z-index: 2;
+}
+
+/* Zone divider positions — BB DS strips inline style, use nth-child instead */
+.ocean > .zone-divider:nth-child(2) { top: 1200px; }
+.ocean > .zone-divider:nth-child(3) { top: 6000px; }
+
+.marker {
+  position: absolute;
+  max-width: 380px;
+  padding: 20px 28px;
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-radius: 4px;
+  opacity: 0;
+  transition: opacity 0.8s ease;
+  z-index: 1000;
+}
+
+/* Horizontal placement — odd children left, even right */
+.markers-list .marker:nth-child(odd)  { left: 6%; }
+.markers-list .marker:nth-child(even) { right: 6%; }
+
+/* Vertical positions — cards 1–9 use 600px minimum spacing for readability */
+.markers-list .marker:nth-child(1)  { top: 600px; }
+.markers-list .marker:nth-child(2)  { top: 1200px; }
+.markers-list .marker:nth-child(3)  { top: 1800px; }
+.markers-list .marker:nth-child(4)  { top: 2400px; }
+.markers-list .marker:nth-child(5)  { top: 3000px; }
+.markers-list .marker:nth-child(6)  { top: 3600px; }
+.markers-list .marker:nth-child(7)  { top: 4200px; }
+.markers-list .marker:nth-child(8)  { top: 4800px; }
+.markers-list .marker:nth-child(9)  { top: 5400px; }
+.markers-list .marker:nth-child(10) { top: 6000px; }
+.markers-list .marker:nth-child(11) { top: 7200px; }
+.markers-list .marker:nth-child(12) { top: 9000px; }
+.markers-list .marker:nth-child(13) { top: 11142px; }
+.markers-list .marker:nth-child(14) { top: 12000px; }
+.markers-list .marker:nth-child(15) { top: 15000px; }
+.markers-list .marker:nth-child(16) { top: 16200px; }
+.markers-list .marker:nth-child(17) { top: 17952px; }
+.markers-list .marker:nth-child(18) { top: 19200px; }
+.markers-list .marker:nth-child(19) { top: 20400px; }
+.markers-list .marker:nth-child(20) { top: 21000px; }
+.markers-list .marker:nth-child(21) { top: 21600px; }
+.markers-list .marker:nth-child(22) { top: 22500px; }
+/* nth-child(23) top/position overridden in the Finale block below */
+
+.marker.visible { opacity: 1 !important; }
+
+.marker-depth {
+  font-family: var(--ds-font-mono);
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  color: var(--accent);
+  margin-bottom: 10px;
+}
+
+.marker-title {
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.3;
+  margin-bottom: 10px;
+}
+
+.marker-text {
+  font-size: 14px;
+  color: var(--text-mid);
+  line-height: 1.75;
+  font-weight: 300;
+}
+
+.marker-text + .marker-text { margin-top: 14px; }
+
+/* Zone-change markers: 5 (200m) and 13 (1000m) */
+.markers-list .marker:nth-child(5),
+.markers-list .marker:nth-child(13) {
+  background: rgba(0, 0, 0, 0.45);
+  border-left: 3px solid var(--accent);
+  max-width: 420px;
+}
+.markers-list .marker:nth-child(5) .marker-title,
+.markers-list .marker:nth-child(13) .marker-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--accent);
+  letter-spacing: 0.05em;
+}
+
+/* Silence marker: 20 (2700m) — no glass background */
+.markers-list .marker:nth-child(20) { background: transparent; backdrop-filter: none; -webkit-backdrop-filter: none; }
+.markers-list .marker:nth-child(20) .marker-text { font-style: italic; color: var(--text-dim); }
+
+/* Finale marker: 28 (3800m) */
+.markers-list .marker:nth-child(28) {
+  top: 22800px;
+  left: 50%;
+  right: auto;
+  transform: translateX(-50%);
+  max-width: 520px;
+  text-align: center;
+  background: rgba(0, 0, 0, 0.5);
+  border-top: 2px solid var(--accent);
+  padding: 36px 40px;
+}
+.markers-list .marker:nth-child(28) .marker-title { font-size: 28px; letter-spacing: 0.08em; margin-bottom: 6px; }
+
+/* Click bubbles — emitted from submarine on click */
+.click-bubble {
+  position: absolute;
+  border-radius: 50%;
+  border: 1.5px solid rgba(255, 255, 255, 0.55);
+  background: rgba(255, 255, 255, 0.08);
+  pointer-events: none;
+  animation: click-rise 1.4s ease-out forwards;
+}
+@keyframes click-rise {
+  0%   { transform: translate(0, 0) scale(0); opacity: 0; }
+  18%  { transform: translate(calc(var(--bx, 0px) * 0.1), -8px) scale(1); opacity: 0.55; }
+  100% { transform: translate(var(--bx, 0px), -90px) scale(1); opacity: 0; }
+}
+
+.marker-coords {
+  font-family: var(--ds-font-mono);
+  font-size: 12px;
+  color: var(--text-mid);
+  letter-spacing: 0.08em;
+  margin-bottom: 20px;
+}
+
+.final-line {
+  color: var(--text) !important;
+  font-weight: 400 !important;
+  font-size: 15px !important;
+  margin-top: 24px !important;
+  padding-top: 24px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.titanic-wreck {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 22600px;
+  z-index: 3;
+  opacity: 0.9;
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 22%, black 68%, transparent 100%);
+  mask-image: linear-gradient(to bottom, transparent 0%, black 22%, black 68%, transparent 100%);
+}
+.titanic-wreck img {
+  width: 100%;
+  display: block;
+}
+
+@media (max-width: 768px) {
+  .marker { max-width: calc(100% - 100px); padding: 16px 20px; font-size: 13px; }
+  .markers-list .marker:nth-child(odd)  { left: 12px; }
+  .markers-list .marker:nth-child(even) { right: 12px; }
+  .markers-list .marker:nth-child(28) { max-width: calc(100% - 32px); padding: 28px 24px; }
+  .markers-list .marker:nth-child(28) .marker-title { font-size: 22px; }
+  .marker-title { font-size: 16px; }
+  .marker-text { font-size: 13px; }
+  .submarine { top: 25%; }
+  .submarine svg { width: 90px; height: auto; }
+  .hud { top: 16px; left: 16px; }
+  .depth-readout { padding: 12px 14px; min-width: 100px; }
+  .depth-value { font-size: 28px; }
+  .depth-track { left: 16px; top: 160px; }
+}
+
+@media (max-width: 480px) {
+  .markers-list .marker { left: 12px; right: 12px; max-width: calc(100% - 24px); }
+  .submarine { opacity: 0.5; top: 18%; }
+  .submarine svg { width: 70px; }
+}
+
+/* @section epilogue */
+.epilogue {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 48px 32px 80px;
+  text-align: center;
+  background: transparent;
+}
+
+.epilogue p {
+  font-size: 14px;
+  color: rgba(240, 244, 248, 0.75);
+  line-height: 1.9;
+  font-weight: 300;
+  max-width: 480px;
+  text-align: center;
+}
+
+.surface-link {
+  display: inline-block;
+  margin-top: 40px;
+  font-family: var(--ds-font-mono);
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  color: var(--text-dim);
+  text-decoration: none;
+  transition: color 0.3s;
+  cursor: pointer;
+}
+
+.surface-link:hover { color: var(--text); }
+
+.page-footnote {
+  text-align: center;
+  padding: 52px 0 60px;
+  width: 100%;
+  max-width: 580px;
+}
+.footnote-rule {
+  width: 100%;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.08);
+  margin-bottom: 44px;
+}
+.page-footnote .footnote-tribute {
+  font-family: var(--ds-font-body);
+  font-size: 13px;
+  line-height: 1.85;
+  color: rgba(240, 244, 248, 0.52);
+  letter-spacing: 0.01em;
+  font-weight: 300;
+  max-width: 100%;
+  margin: 0 auto 18px;
+  text-align: center;
+}
+.page-footnote .footnote-credit {
+  margin-top: 63px;
+  font-family: var(--ds-font-mono);
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  color: rgba(240, 244, 248, 0.48);
+  max-width: 100%;
+  text-align: center;
+}
+.page-footnote .footnote-credit a {
+  color: rgba(240, 244, 248, 0.48);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  transition: color 0.3s;
+}
+.page-footnote .footnote-credit a:hover { color: rgba(240, 244, 248, 0.55); }
+  </style>
+  <script>
+/* @section ocean-descent */
+function onReady(fn) {
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', fn);
+  } else { fn(); }
+}
+onReady(function() {
+  // BB mirrors @base body background to .fl-ds-block via an external stylesheet.
+  // JS inline styles beat all CSS (including !important in linked sheets).
+  document.querySelectorAll('.fl-ds-block').forEach(function(el) {
+    el.style.background = 'transparent';
+    el.style.backgroundColor = 'transparent';
+  });
+
+  var PPM = 6;
+  var TOTAL_DEPTH = 3800;
+  var OCEAN_PX = 22900; // ocean ends close to image bottom, keeps finale visible
+
+  // intro = section reference for offsetHeight only — never set opacity on it
+  var intro = document.getElementById('intro');
+  // introContent = the element that actually fades on scroll
+  var introContent = document.getElementById('intro-content');
+  var scrollPrompt = document.getElementById('scroll-prompt');
+  var ocean = document.getElementById('ocean');
+  var sub = document.getElementById('submarine');
+  var hud = document.getElementById('hud');
+  var track = document.getElementById('depthTrack');
+  var lightRays = document.getElementById('lightRays');
+  var depthValue = document.getElementById('depthValue');
+  var zoneName = document.getElementById('zoneName');
+  var hudStats = document.getElementById('hudStats');
+  var trackFill = document.getElementById('trackFill');
+  var trackPip = document.getElementById('trackPip');
+  var subInner = document.getElementById('subInner');
+  var root = document.documentElement;
+  var markers = document.querySelectorAll('.marker');
+
+  function revealMarker(el) {
+    el.classList.add('visible');
+    el.style.setProperty('opacity', '1', 'important');
+  }
+
+  // Delay observer setup so BB DS finishes any post-DOMContentLoaded DOM work
+  setTimeout(function() {
+    var liveMarkers = document.querySelectorAll('.marker');
+    if ('IntersectionObserver' in window) {
+      var markerObserver = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+          if (entry.isIntersecting) {
+            revealMarker(entry.target);
+            markerObserver.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.01 });
+      liveMarkers.forEach(function(m) { markerObserver.observe(m); });
+    }
+  }, 100);
+
+  ocean.style.height = (OCEAN_PX + window.innerHeight) + 'px';
+
+  // Position each marker card so it enters the viewport exactly when the HUD
+  // reads the card's labeled depth. Formula derived from:
+  //   depth = (sy + vh*0.25 - iH) / PPM, with iH = vh (100vh intro)
+  //   card enters when sy = card_top, so: card_top = D*PPM + vh*0.75
+  function positionMarkers() {
+    var vh = window.innerHeight;
+    document.querySelectorAll('.markers-list .marker').forEach(function(marker) {
+      var meta = marker.querySelector('.marker-depth-meta');
+      if (meta) {
+        var d = parseInt(meta.textContent, 10);
+        if (!isNaN(d)) {
+          marker.style.top = (d * PPM) + 'px';
+        }
+      }
+    });
+  }
+  positionMarkers();
+  window.addEventListener('resize', function() {
+    ocean.style.height = (OCEAN_PX + window.innerHeight) + 'px';
+    positionMarkers();
+  });
+
+  var COLORS = [
+    { d: 0,    r: 14,  g: 165, b: 233 },
+    { d: 50,   r: 8,   g: 145, b: 215 },
+    { d: 150,  r: 4,   g: 115, b: 180 },
+    { d: 200,  r: 3,   g: 100, b: 161 },
+    { d: 400,  r: 8,   g: 80,  b: 130 },
+    { d: 700,  r: 10,  g: 55,  b: 100 },
+    { d: 1000, r: 7,   g: 29,  b: 51  },
+    { d: 1500, r: 5,   g: 18,  b: 35  },
+    { d: 2000, r: 4,   g: 14,  b: 26  },
+    { d: 3000, r: 3,   g: 8,   b: 15  },
+    { d: 3800, r: 2,   g: 5,   b: 9   }
+  ];
+
+  function lerpColor(depth) {
+    var lo = COLORS[0], hi = COLORS[COLORS.length - 1];
+    for (var i = 0; i < COLORS.length - 1; i++) {
+      if (depth >= COLORS[i].d && depth <= COLORS[i + 1].d) {
+        lo = COLORS[i]; hi = COLORS[i + 1]; break;
+      }
+    }
+    var t = hi.d === lo.d ? 0 : (depth - lo.d) / (hi.d - lo.d);
+    return {
+      r: Math.round(lo.r + (hi.r - lo.r) * t),
+      g: Math.round(lo.g + (hi.g - lo.g) * t),
+      b: Math.round(lo.b + (hi.b - lo.b) * t)
+    };
+  }
+
+  function getZone(d) {
+    if (d < 200) return 'SUNLIGHT ZONE';
+    if (d < 1000) return 'TWILIGHT ZONE';
+    return 'MIDNIGHT ZONE';
+  }
+
+  function getTemp(d) {
+    if (d <= 50) return 20;
+    if (d <= 200) return Math.round(20 - (d - 50) * 0.06);
+    if (d <= 1000) return Math.round(11 - (d - 200) * 0.01125);
+    return Math.max(1, Math.round(2 - (d - 1000) * 0.0003));
+  }
+
+  var particleContainer = document.getElementById('particles');
+
+  for (var i = 0; i < 18; i++) {
+    var b = document.createElement('div');
+    b.className = 'bubble';
+    b.style.left = (Math.random() * 100) + '%';
+    var size = 2 + Math.random() * 4;
+    b.style.width = size + 'px';
+    b.style.height = size + 'px';
+    b.style.animationDuration = (10 + Math.random() * 15) + 's';
+    b.style.animationDelay = (-Math.random() * 20) + 's';
+    particleContainer.appendChild(b);
+  }
+
+  var bioColors = ['#5BC0BE', '#6FFFE9', '#88D4E0', '#A0E4F0'];
+  for (var j = 0; j < 25; j++) {
+    var dot = document.createElement('div');
+    dot.className = 'bio-dot';
+    dot.style.left = (Math.random() * 100) + '%';
+    dot.style.top = (Math.random() * 100) + '%';
+    var dotSize = 1 + Math.random() * 3;
+    dot.style.width = dotSize + 'px';
+    dot.style.height = dotSize + 'px';
+    dot.style.color = bioColors[Math.floor(Math.random() * bioColors.length)];
+    dot.style.background = 'currentColor';
+    dot.style.animationDuration = (3 + Math.random() * 7) + 's';
+    dot.style.animationDelay = (-Math.random() * 8) + 's';
+    particleContainer.appendChild(dot);
+  }
+
+  var inOcean = false;
+  var ticking = false;
+
+  function update() {
+    var sy = window.scrollY;
+    var vh = window.innerHeight;
+    var iH = intro.offsetHeight;
+    // Read depth at 25% down from viewport top (where sub/eye naturally rests)
+    var depthOffset = vh * 0.25;
+    var depth = Math.min(TOTAL_DEPTH, Math.max(0, (sy + depthOffset - iH) / PPM));
+    inOcean = sy > iH * 0.4;
+
+    // Fade only the intro text content — never the intro section itself
+    var introOpacity = sy < iH
+      ? Math.max(0, 1 - sy / (iH * 0.6))
+      : 0;
+    introContent.style.opacity = introOpacity;
+    if (scrollPrompt) scrollPrompt.style.opacity = introOpacity;
+
+    // Sub activates when the 25%-down reference line crosses sea level (slightly early)
+    var subActive = (sy + depthOffset) > iH;
+    sub.classList.toggle('active', subActive);
+    hud.classList.toggle('active', inOcean);
+    track.classList.toggle('active', inOcean);
+    // Bubbles only make sense underwater — hide them until the sub is active
+    particleContainer.style.opacity = subActive ? '1' : '0';
+
+    if (!inOcean) {
+      document.body.style.background = 'rgb(14, 165, 233)';
+      ticking = false;
+      return;
+    }
+
+    var c = lerpColor(depth);
+    document.body.style.background = 'rgb(' + c.r + ',' + c.g + ',' + c.b + ')';
+
+    depthValue.textContent = Math.round(depth).toLocaleString();
+    zoneName.textContent = getZone(depth);
+    hudStats.textContent = Math.round(depth / 10 + 1) + ' atm \u00B7 ' + getTemp(depth) + '\u00B0C';
+
+    var progress = Math.min(100, (depth / TOTAL_DEPTH) * 100);
+    trackFill.style.height = progress + '%';
+    trackPip.style.top = progress + '%';
+
+    lightRays.style.opacity = Math.max(0, 1 - depth / 500);
+
+    root.style.setProperty('--bubble-opacity', Math.max(0, 0.15 * (1 - depth / 600)));
+    root.style.setProperty('--bio-opacity', Math.max(0, Math.min(0.6, (depth - 800) / 600)));
+
+    if (depth > 3790) {
+      sub.style.opacity = Math.max(0, 1 - (depth - 3790) / 10).toFixed(2);
+    } else {
+      sub.style.opacity = '';
+    }
+
+    if (depth > 3300) {
+      var t = Math.min(1, (depth - 3300) / 500);
+      root.style.setProperty('--accent',
+        'rgb(' + Math.round(91 + (184 - 91) * t) + ',' +
+                 Math.round(192 + (115 - 192) * t) + ',' +
+                 Math.round(190 + (51 - 190) * t) + ')');
+    } else {
+      root.style.setProperty('--accent', '#5BC0BE');
+    }
+
+    // Scroll fallback for marker reveal (belt-and-suspenders with IntersectionObserver)
+    var vh = window.innerHeight;
+    document.querySelectorAll('.marker:not(.visible)').forEach(function(m) {
+      var rect = m.getBoundingClientRect();
+      if (rect.top < vh && rect.bottom > 0) { revealMarker(m); }
+    });
+
+    ticking = false;
+  }
+
+  window.addEventListener('scroll', function() {
+    if (!ticking) { requestAnimationFrame(update); ticking = true; }
+  }, { passive: true });
+
+  var mouseX = window.innerWidth / 2;
+  var mouseY = window.innerHeight * 0.45;
+  var subX = window.innerWidth / 2;
+  var subY = window.innerHeight * 0.45;
+
+  document.addEventListener('mousemove', function(e) { mouseX = e.clientX; mouseY = e.clientY; });
+
+  function animateSub() {
+    subX += (mouseX - subX) * 0.005;
+    subY += (mouseY - subY) * 0.004;
+    subX = Math.max(window.innerWidth * 0.1, Math.min(window.innerWidth * 0.9, subX));
+    subY = Math.max(window.innerHeight * 0.15, Math.min(window.innerHeight * 0.75, subY));
+
+    sub.style.left = subX + 'px';
+    sub.style.top = subY + 'px';
+
+    var scaleX = (mouseX - subX) < 0 ? 1 : -1;
+    var tilt = Math.max(-20, Math.min(20, (mouseY - subY) * -0.06));
+    subInner.style.transform = 'scaleX(' + scaleX + ') rotate(' + tilt + 'deg)';
+    sub.style.transform = 'translate(-50%, calc(-50% + ' + (Math.sin(Date.now() / 1000) * 3) + 'px))';
+
+    requestAnimationFrame(animateSub);
+  }
+
+  requestAnimationFrame(animateSub);
+  update();
+
+  // Click anywhere → bubbles rise from the submarine periscope
+  document.addEventListener('click', function() {
+    if (!inOcean) return;
+    var count = 4 + Math.floor(Math.random() * 3);
+    for (var k = 0; k < count; k++) {
+      var bub = document.createElement('div');
+      bub.className = 'click-bubble';
+      var size = 4 + Math.random() * 7;
+      bub.style.width = size + 'px';
+      bub.style.height = size + 'px';
+      // Periscope tip is ~24px above sub center, slight horizontal scatter
+      bub.style.left = (subX + (Math.random() - 0.5) * 22 - 4) + 'px';
+      bub.style.top  = (subY - 24) + 'px';
+      bub.style.setProperty('--bx', ((Math.random() - 0.5) * 50) + 'px');
+      bub.style.animationDuration = (0.9 + Math.random() * 0.6) + 's';
+      bub.style.animationDelay   = (k * 0.07) + 's';
+      particleContainer.appendChild(bub);
+      (function(el) {
+        setTimeout(function() { if (el.parentNode) el.parentNode.removeChild(el); }, 2200);
+      })(bub);
+    }
+  });
+});
+  </script>
+</head>
+<body>
+
+  <!-- ══════════════════════════════════════════════════════ -->
+  <!-- ── INTRO                                            ── -->
+  <!-- ══════════════════════════════════════════════════════ -->
+  <section id="intro" class="intro" data-label="Intro">
+
+    <div id="intro-content" class="intro-content">
+      <p class="intro-depth" data-field="eyebrow">3,800 METERS</p>
+      <h1 data-field="heading">APRIL 15TH</h1>
+      <p class="intro-sub" data-field="subheading">A descent to the Titanic</p>
+      <p class="intro-date" data-field="date">April 15, 1912 — April 15, 2026</p>
+    </div>
+
+    <div id="scroll-prompt" class="scroll-prompt">
+      <span class="arrow">↓</span>
+      Scroll to descend
+    </div>
+
+    <div class="surface-vessel"><img src="https://create.beaverbuilder.ai/wp-content/uploads/2026/04/research-vessel-1.webp" alt="Research vessel at the ocean surface" width="1600" height="791"></div>
+
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════ -->
+  <!-- ── OCEAN DESCENT                                    ── -->
+  <!-- ══════════════════════════════════════════════════════ -->
+  <section id="ocean-descent" class="ocean-descent" data-label="Ocean Descent">
+
+    <!-- Fixed viewport overlays -->
+    <div class="light-rays" id="lightRays">
+      <div class="ray" style="left:10%; width:70px; --ray-transform:rotate(10deg); animation-delay:0s;"></div>
+      <div class="ray" style="left:28%; width:50px; --ray-transform:rotate(6deg); animation-delay:-3s;"></div>
+      <div class="ray" style="left:48%; width:90px; --ray-transform:rotate(14deg); animation-delay:-6s;"></div>
+      <div class="ray" style="left:68%; width:55px; --ray-transform:rotate(8deg); animation-delay:-2s;"></div>
+      <div class="ray" style="left:85%; width:45px; --ray-transform:rotate(18deg); animation-delay:-7s;"></div>
+    </div>
+
+    <div class="particles" id="particles"></div>
+
+    <div class="submarine" id="submarine">
+      <div class="sonar-ping"></div>
+      <div class="sub-inner" id="subInner">
+        <svg width="140" height="64" viewBox="0 0 140 64" fill="none" aria-hidden="true">
+          <defs>
+            <!-- Clip upper half of hull ellipse (above seam) -->
+            <clipPath id="sub-top">
+              <rect x="0" y="0" width="140" height="38"/>
+            </clipPath>
+            <!-- Clip lower half of hull ellipse (below seam) -->
+            <clipPath id="sub-bot">
+              <rect x="0" y="38" width="140" height="26"/>
+            </clipPath>
+            <linearGradient id="sub-yel" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#FFE348"/>
+              <stop offset="100%" stop-color="#D4A010"/>
+            </linearGradient>
+            <linearGradient id="sub-blu" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#1E5898"/>
+              <stop offset="100%" stop-color="#0C2544"/>
+            </linearGradient>
+          </defs>
+          <!-- Subtle water shadow -->
+          <ellipse cx="62" cy="57" rx="40" ry="3" fill="rgba(0,0,0,0.12)"/>
+          <!-- Yellow upper hull -->
+          <ellipse cx="62" cy="38" rx="48" ry="18" fill="url(#sub-yel)" clip-path="url(#sub-top)"/>
+          <!-- Blue lower hull -->
+          <ellipse cx="62" cy="38" rx="48" ry="18" fill="url(#sub-blu)" clip-path="url(#sub-bot)"/>
+          <!-- Hull seam — recessed bevel: shadow below + highlight above for 3D dimple -->
+          <path d="M15 40.5 Q62 44 109 40.5" stroke="rgba(0,0,20,0.45)" stroke-width="3" fill="none" stroke-linecap="round"/>
+          <path d="M16 38 Q62 40 108 38" stroke="rgba(0,0,0,0.3)" stroke-width="1.5" fill="none"/>
+          <path d="M17 36.5 Q62 38 107 36.5" stroke="rgba(255,255,200,0.5)" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+          <!-- Specular highlight on upper hull -->
+          <ellipse cx="54" cy="27" rx="22" ry="4" fill="rgba(255,255,255,0.2)"/>
+          <!-- Conning tower -->
+          <rect x="50" y="12" width="22" height="20" rx="3" fill="#E8C028"/>
+          <rect x="52" y="13" width="9" height="5" rx="2" fill="rgba(255,255,255,0.22)"/>
+          <!-- Periscope -->
+          <rect x="58" y="1" width="4" height="14" rx="1.5" fill="#C09010"/>
+          <rect x="58" y="1" width="2" height="7" rx="1" fill="rgba(255,255,255,0.2)"/>
+          <!-- Porthole 1 — straddles seam for two-tone look -->
+          <circle cx="38" cy="37" r="6.5" fill="#10243A" stroke="#E8C028" stroke-width="1.5"/>
+          <circle cx="38" cy="37" r="3.8" fill="#3C96E0"/>
+          <circle cx="36.5" cy="35.5" r="1.3" fill="rgba(255,255,255,0.55)"/>
+          <!-- Porthole 2 -->
+          <circle cx="58" cy="38" r="4.5" fill="#10243A" stroke="#C8A010" stroke-width="1"/>
+          <circle cx="58" cy="38" r="2.6" fill="#3C96E0" opacity="0.75"/>
+          <circle cx="56.8" cy="36.8" r="0.9" fill="rgba(255,255,255,0.5)"/>
+          <!-- Tail fin -->
+          <path d="M108 28 L118 38 L108 48 Z" fill="#C8A010"/>
+          <!-- Propeller -->
+          <line x1="118" y1="30" x2="128" y2="24" stroke="#B89010" stroke-width="2" stroke-linecap="round"/>
+          <line x1="118" y1="38" x2="132" y2="38" stroke="#B89010" stroke-width="2" stroke-linecap="round"/>
+          <line x1="118" y1="46" x2="128" y2="52" stroke="#B89010" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </div>
+    </div>
+
+    <div class="hud" id="hud">
+      <div class="depth-readout">
+        <div class="depth-value" id="depthValue">0</div>
+        <div class="depth-unit">meters</div>
+        <div class="zone-name" id="zoneName">SUNLIGHT ZONE</div>
+        <div class="hud-stats" id="hudStats">1 atm · 20°C</div>
+      </div>
+    </div>
+
+    <div class="depth-track" id="depthTrack">
+      <div class="track-fill" id="trackFill"></div>
+      <div class="track-pip" id="trackPip"></div>
+      <div class="zone-tick" style="top: 5.3%;">200m</div>
+      <div class="zone-tick" style="top: 26.3%;">1,000m</div>
+      <div class="zone-tick" style="bottom: 0;">3,800m</div>
+    </div>
+
+    <!-- Ocean scroll content -->
+    <div id="ocean" class="ocean">
+
+            <div class="surface-line"><span>SEA LEVEL</span></div>
+      <div class="zone-divider" style="top: 1200px;"></div>
+      <div class="zone-divider" style="top: 6000px;"></div>
+
+      <!-- Depth marker cards — edit depth_label, title, body via BB editor General panel -->
+      <div class="markers-list">
+
+        <div class="marker">
+          <span class="marker-depth-meta" data-field="m10_depth">10</span>
+          <p class="marker-depth" data-field="m10_label">10m</p>
+          <h3 class="marker-title" data-field="m10_title">The Deep End</h3>
+          <p class="marker-text" data-field="m10_body">The depth of an Olympic diving pool. Pressure has already doubled from the surface. Light everywhere. You can still see your shadow on the sand.</p>
+          <p class="marker-text" data-field="m10_body2"></p>
+        </div>
+
+        <div class="marker">
+          <span class="marker-depth-meta" data-field="m40_depth">40</span>
+          <p class="marker-depth" data-field="m40_label">40m</p>
+          <h3 class="marker-title" data-field="m40_title">The Limit</h3>
+          <p class="marker-text" data-field="m40_body">Below here, nitrogen narcosis — <em>the rapture of the deep</em> — makes divers euphoric, then unconscious. Cousteau called it <em>l'ivresse des grandes profondeurs</em>.</p>
+          <p class="marker-text" data-field="m40_body2"></p>
+        </div>
+
+        <div class="marker">
+          <span class="marker-depth-meta" data-field="m93_depth">93</span>
+          <p class="marker-depth" data-field="m93_label">93m</p>
+          <h3 class="marker-title" data-field="m93_title">Statue of Liberty</h3>
+          <p class="marker-text" data-field="m93_body">If Lady Liberty stood on the ocean floor here, her torch would just break the surface. 93 meters of copper and ambition, and the ocean barely notices.</p>
+          <p class="marker-text" data-field="m93_body2"></p>
+        </div>
+
+        <div class="marker">
+          <span class="marker-depth-meta" data-field="m150_depth">150</span>
+          <p class="marker-depth" data-field="m150_label">150m</p>
+          <h3 class="marker-title" data-field="m150_title">Color Disappears</h3>
+          <p class="marker-text" data-field="m150_body">Colors vanish in order as depth increases: red first, then orange, yellow, green. Eventually only blue remains. Then that goes too.</p>
+          <p class="marker-text" data-field="m150_body2"></p>
+        </div>
+
+        <div class="marker">
+          <span class="marker-depth-meta" data-field="m200_depth">200</span>
+          <p class="marker-depth" data-field="m200_label">200m — ZONE BOUNDARY</p>
+          <h3 class="marker-title" data-field="m200_title">The Twilight Zone</h3>
+          <p class="marker-text" data-field="m200_body">Photosynthesis is impossible below this line. 71% of Earth's surface is ocean. You've just left the part we understand.</p>
+          <p class="marker-text" data-field="m200_body2">Below here, 76% of all animals make their own light.</p>
+        </div>
+
+        <div class="marker">
+          <span class="marker-depth-meta" data-field="m260_depth">260</span>
+          <p class="marker-depth" data-field="m260_label">260m</p>
+          <h3 class="marker-title" data-field="m260_title">The Ship</h3>
+          <p class="marker-text" data-field="m260_body">RMS Titanic was 269 meters long and weighed 46,328 tons — the largest moving object ever built by human hands when she launched in 1911. She had a swimming pool, a Turkish bath, a squash court, and a Parisian café. She carried 10,000 lightbulbs. She was designed not just to cross the Atlantic, but to make you forget that you were.</p>
+          <p class="marker-text" data-field="m260_body2"></p>
+        </div>
+
+        <div class="marker">
+          <span class="marker-depth-meta" data-field="m332_depth">332</span>
+          <p class="marker-depth" data-field="m332_label">332m</p>
+          <h3 class="marker-title" data-field="m332_title">Deepest Scuba Dive</h3>
+          <p class="marker-text" data-field="m332_body">The Eiffel Tower, inverted, would reach this deep. And here, in 2014, Ahmed Gabr set the deepest scuba dive record. Fifteen minutes down. Thirteen hours and thirty-five minutes back up.</p>
+          <p class="marker-text" data-field="m332_body2"></p>
+        </div>
+
+        <div class="marker">
+          <span class="marker-depth-meta" data-field="m443_depth">443</span>
+          <p class="marker-depth" data-field="m443_label">443m</p>
+          <h3 class="marker-title" data-field="m443_title">Empire State Building</h3>
+          <p class="marker-text" data-field="m443_body">102 floors of Art Deco ambition, antenna to lobby, fully inverted. And it still wouldn't reach the bottom of the Twilight Zone.</p>
+          <p class="marker-text" data-field="m443_body2"></p>
+        </div>
+
+        <div class="marker">
+          <span class="marker-depth-meta" data-field="m500_depth">500</span>
+          <p class="marker-depth" data-field="m500_label">500m</p>
+          <h3 class="marker-title" data-field="m500_title">Giant Squid</h3>
+          <p class="marker-text" data-field="m500_body">Architeuthis dux. Up to 43 feet of tentacle and centuries of myth. Nobody photographed one alive until 2004. Most military submarines would be crushed at this depth. The ocean doesn't care what we build.</p>
+          <p class="marker-text" data-field="m500_body2"></p>
+        </div>
+
+        <div class="marker">
+          <span class="marker-depth-meta" data-field="m640_depth">640</span>
+          <p class="marker-depth" data-field="m640_label">640m</p>
+          <h3 class="marker-title" data-field="m640_title">The Lifeboats</h3>
+          <p class="marker-text" data-field="m640_body">The Titanic carried 20 lifeboats — enough for 1,178 people. There were 2,224 aboard. This was not a violation: British regulations required lifeboats based on ship tonnage, not passenger count, and Titanic met them. The regulations changed after April 15, 1912.</p>
+          <p class="marker-text" data-field="m640_body2">Lifeboat No. 1, with a capacity of 40, left with 12 people aboard — including Sir Cosmo Duff Gordon and his wife. They rowed away from the sinking ship and did not go back.</p>
+        </div>
+
+        <div class="marker">
+          <span class="marker-depth-meta" data-field="m828_depth">828</span>
+          <p class="marker-depth" data-field="m828_label">828m</p>
+          <h3 class="marker-title" data-field="m828_title">Burj Khalifa</h3>
+          <p class="marker-text" data-field="m828_body">The tallest structure humanity has ever built, fully submerged to its spire. 828 meters of glass and steel. Below it: only darkness.</p>
+          <p class="marker-text" data-field="m828_body2"></p>
+        </div>
+
+        <div class="marker">
+          <span class="marker-depth-meta" data-field="m900_depth">900</span>
+          <p class="marker-depth" data-field="m900_label">900m</p>
+          <h3 class="marker-title" data-field="m900_title">The Captain</h3>
+          <p class="marker-text" data-field="m900_body">Captain Edward John Smith had been at sea for 40 years. He was 62 years old. This was to be his final voyage — he planned to retire after arriving in New York. He did not survive. His last known words were reported differently by different witnesses. His body was never recovered.</p>
+          <p class="marker-text" data-field="m900_body2"></p>
+        </div>
+
+        <div class="marker">
+          <span class="marker-depth-meta" data-field="m1000_depth">1000</span>
+          <p class="marker-depth" data-field="m1000_label">1,000m — ZONE BOUNDARY</p>
+          <h3 class="marker-title" data-field="m1000_title">The Midnight Zone</h3>
+          <p class="marker-text" data-field="m1000_body">No photon of sunlight has reached this water in the history of the planet. Total darkness. 101 atmospheres of pressure. Every light from here on was made by something alive.</p>
+          <p class="marker-text" data-field="m1000_body2"></p>
+        </div>
+
+        <div class="marker">
+          <span class="marker-depth-meta" data-field="m1200_depth">1200</span>
+          <p class="marker-depth" data-field="m1200_label">1,200m</p>
+          <h3 class="marker-title" data-field="m1200_title">Anglerfish</h3>
+          <p class="marker-text" data-field="m1200_body">They hover here, dangling bioluminescent lures in the permanent dark. The males are tiny — they bite onto a female and fuse permanently into her body, becoming nothing but a pair of gonads. Romance at 1,200 meters.</p>
+          <p class="marker-text" data-field="m1200_body2"></p>
+        </div>
+
+        <div class="marker">
+          <span class="marker-depth-meta" data-field="m1500_depth">1500</span>
+          <p class="marker-depth" data-field="m1500_label">1,500m</p>
+          <h3 class="marker-title" data-field="m1500_title">The Lusitania</h3>
+          <p class="marker-text" data-field="m1500_body">Her wreck rests at this depth off the Irish coast. Sunk by a torpedo in 18 minutes. The Titanic took 2 hours and 40 minutes. The speed of sinking is what determines who gets a lifeboat.</p>
+          <p class="marker-text" data-field="m1500_body2"></p>
+        </div>
+
+        <div class="marker">
+          <span class="marker-depth-meta" data-field="m1857_depth">1857</span>
+          <p class="marker-depth" data-field="m1857_label">1,857m</p>
+          <h3 class="marker-title" data-field="m1857_title">Grand Canyon</h3>
+          <p class="marker-text" data-field="m1857_body">The deepest point of the Grand Canyon — six million years of the Colorado River's patient work — would be fully submerged here. This water has been here longer.</p>
+          <p class="marker-text" data-field="m1857_body2"></p>
+        </div>
+
+        <div class="marker">
+          <span class="marker-depth-meta" data-field="m2000_depth">2000</span>
+          <p class="marker-depth" data-field="m2000_label">2,000m</p>
+          <h3 class="marker-title" data-field="m2000_title">Giant Isopods</h3>
+          <p class="marker-text" data-field="m2000_body">Armored scavengers the size of footballs. They can survive five years without eating. When they finally feed, they eat until they can barely move. Deep-sea patience.</p>
+          <p class="marker-text" data-field="m2000_body2"></p>
+        </div>
+
+        <div class="marker">
+          <span class="marker-depth-meta" data-field="m2200_depth">2200</span>
+          <p class="marker-depth" data-field="m2200_label">2,200m</p>
+          <h3 class="marker-title" data-field="m2200_title">The Survivors</h3>
+          <p class="marker-text" data-field="m2200_body">Of the 2,224 people aboard, 710 survived — a survival rate of 32%. But the numbers fracture along class lines: 62% of first-class passengers survived. 41% of second-class. 25% of third-class, many of whom were kept below decks as the lifeboats filled above them.</p>
+          <p class="marker-text" data-field="m2200_body2"></p>
+        </div>
+
+        <div class="marker">
+          <span class="marker-depth-meta" data-field="m2500_depth">2500</span>
+          <p class="marker-depth" data-field="m2500_label">2,500m</p>
+          <h3 class="marker-title" data-field="m2500_title">Dumbo Octopus</h3>
+          <p class="marker-text" data-field="m2500_body">They pulse through the darkness, ear-like fins flapping in slow motion. Unlike their shallow-water cousins, they swallow prey whole. Some have been found as deep as 7,000 meters.</p>
+          <p class="marker-text" data-field="m2500_body2"></p>
+        </div>
+
+        <div class="marker">
+          <span class="marker-depth-meta" data-field="m2700_depth">2700</span>
+          <p class="marker-depth" data-field="m2700_label">2,700m</p>
+          <h3 class="marker-title" data-field="m2700_title"></h3>
+          <p class="marker-text" data-field="m2700_body">Nothing lives here. The ocean has been patient for four billion years. It can wait.</p>
+          <p class="marker-text" data-field="m2700_body2"></p>
+        </div>
+
+        <div class="marker">
+          <span class="marker-depth-meta" data-field="m2992_depth">2992</span>
+          <p class="marker-depth" data-field="m2992_label">2,992m</p>
+          <h3 class="marker-title" data-field="m2992_title">Deepest Breath</h3>
+          <p class="marker-text" data-field="m2992_body">In 2014, a Cuvier's beaked whale dove to this exact depth — the deepest dive ever recorded by a mammal. It held its breath for three hours and forty-two minutes. Then it swam back to the surface.</p>
+          <p class="marker-text" data-field="m2992_body2"></p>
+        </div>
+
+        <div class="marker">
+          <span class="marker-depth-meta" data-field="m3200_depth">3200</span>
+          <p class="marker-depth" data-field="m3200_label">3,200m</p>
+          <h3 class="marker-title" data-field="m3200_title">Ancient Water</h3>
+          <p class="marker-text" data-field="m3200_body">This water is 1°C. It last touched sunlight near the Arctic, possibly centuries ago — carried here by deep ocean currents that take a thousand years to complete one loop. This water is older than your country.</p>
+          <p class="marker-text" data-field="m3200_body2"></p>
+        </div>
+
+        <div class="marker">
+          <span class="marker-depth-meta" data-field="m3300_depth">3300</span>
+          <p class="marker-depth" data-field="m3300_label">3,300m</p>
+          <h3 class="marker-title" data-field="m3300_title">The Warnings</h3>
+          <p class="marker-text" data-field="m3300_body">On April 14, 1912, Titanic received at least six separate ice warnings from other ships. Most were not passed to the bridge. At 9:40 PM, the steamship Mesaba sent a direct warning describing heavy pack ice and icebergs in the exact region ahead. The radio operator set it aside. At 23 knots, in the dark, the ship sailed on.</p>
+          <p class="marker-text" data-field="m3300_body2"></p>
+        </div>
+
+        <div class="marker">
+          <span class="marker-depth-meta" data-field="m3400_depth">3400</span>
+          <p class="marker-depth" data-field="m3400_label">3,400m</p>
+          <h3 class="marker-title" data-field="m3400_title">11:40 PM</h3>
+          <p class="marker-text" data-field="m3400_body">April 14, 1912. Lookout Frederick Fleet spots a dark mass ahead and rings the bell three times. He telephones the bridge: <em>Iceberg, right ahead.</em> First Officer Murdoch orders hard a-starboard. Thirty-seven seconds. Not enough.</p>
+          <p class="marker-text" data-field="m3400_body2"></p>
+        </div>
+
+        <div class="marker">
+          <span class="marker-depth-meta" data-field="m3500_depth">3500</span>
+          <p class="marker-depth" data-field="m3500_label">3,500m</p>
+          <h3 class="marker-title" data-field="m3500_title">The Musicians</h3>
+          <p class="marker-text" data-field="m3500_body">Eight musicians led by violinist Wallace Hartley played for over two hours as the ship went down. They were not required to. They were not asked to stay. All eight died. Hartley's violin, a gift from his fiancée, was recovered from the Atlantic. In 2013, it sold at auction for £1.1 million.</p>
+          <p class="marker-text" data-field="m3500_body2"></p>
+        </div>
+
+        <div class="marker">
+          <span class="marker-depth-meta" data-field="m3600_depth">3600</span>
+          <p class="marker-depth" data-field="m3600_label">3,600m</p>
+          <h3 class="marker-title" data-field="m3600_title">The Break</h3>
+          <p class="marker-text" data-field="m3600_body">The stern rose until it was nearly vertical — every light still blazing. Then the ship split in two. 1,517 people were in the water. The temperature was -2°C. The nearest rescue ship was 58 miles away.</p>
+          <p class="marker-text" data-field="m3600_body2"></p>
+        </div>
+
+        <div class="marker">
+          <span class="marker-depth-meta" data-field="m3750_depth">3750</span>
+          <p class="marker-depth" data-field="m3750_label">3,750m</p>
+          <h3 class="marker-title" data-field="m3750_title">Six Minutes</h3>
+          <p class="marker-text" data-field="m3750_body">The bow section fell for six minutes, reaching 30 miles per hour. When it struck the seafloor, it buried itself 60 feet into the sediment — a six-story building's depth of impact.</p>
+          <p class="marker-text" data-field="m3750_body2"></p>
+        </div>
+
+        <!-- Finale — child 28 of markers-list; positioned by nth-child(28) CSS rule -->
+        <div class="marker">
+          <p class="marker-depth" data-field="finale_depth">3,800m — 12,467 ft</p>
+          <h3 class="marker-title" data-field="finale_title">RMS TITANIC</h3>
+          <p class="marker-coords" data-field="finale_coords">41°43′57″N · 49°56′49″W</p>
+          <p class="marker-text" data-field="finale_body1">She has been here since the early hours of April 15, 1912 — exactly 114 years ago today.</p>
+          <p class="marker-text" data-field="finale_body2">Not found until 1985, when Robert Ballard spotted one of her boilers on a camera sled at 1:05 AM. His expedition was secretly funded by the U.S. Navy to survey two lost nuclear submarines. Ballard had twelve days left over to search for the Titanic.</p>
+          <p class="marker-text" data-field="finale_body3">Bacteria called <em>Halomonas titanicae</em> are consuming her hull at 400 pounds per day, forming icicle-like structures called rusticles. By 2050, there may be nothing recognizable left to visit.</p>
+          <p class="marker-text final-line" data-field="finale_body4">The shoes remain. Scattered across the debris field, preserved by the tannin in the leather. They rest in pairs — marking where someone came to rest on the ocean floor. The cold and the creatures took everything else long ago. But the shoes remain.</p>
+        </div>
+
+      </div><!-- /.markers-list -->
+
+      <div class="titanic-wreck"><img src="https://create.beaverbuilder.ai/wp-content/uploads/2026/04/titanic-wreck.webp" alt="RMS Titanic wreck on the ocean floor" width="1600" height="791"></div>
+
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════ -->
+  <!-- ── EPILOGUE                                         ── -->
+  <!-- ══════════════════════════════════════════════════════ -->
+  <section id="epilogue" class="epilogue" data-label="Epilogue">
+    <p data-field="epilogue_text">The RMS Carpathia arrived at 4:10 AM and rescued 710 survivors from the lifeboats. The water was −2°C. She searched for two more hours, finding no one else alive. Then she turned for New York.</p>
+    <a class="surface-link" href="#" onclick="event.preventDefault();window.scrollTo({top:0,behavior:'smooth'})">↑ RETURN TO SURFACE</a>
+    <div class="page-footnote">
+      <div class="footnote-rule"></div>
+      <p class="footnote-tribute">The story of the Titanic has become woven into popular culture — films, books, exhibitions, songs, and pages like this one. What began as an act of industrial pride became one of history's defining disasters, and its mythology has only grown in the century since.</p>
+      <p class="footnote-tribute">Behind every fact here are real people. 1,517 of them did not survive. Thousands more — families, survivors, rescue crews — carried the weight of that night for the rest of their lives. Their loss reshaped maritime law, changed how we think about class and safety, and left a wound that still hasn't fully healed. This page was built with curiosity and craft, and with genuine respect for what actually happened here.</p>
+      <p class="footnote-credit">Created with <a href="https://www.wpbeaverbuilder.com" target="_blank" rel="noopener">Beaver Builder</a></p>
+    </div>
+  </section>
+
+</body>
+</html>
