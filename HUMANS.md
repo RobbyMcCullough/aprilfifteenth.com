@@ -12,5 +12,6 @@
 - Related folders: None confirmed in this session
 
 ## Return Notes
-- Main work happened in `favicon.svg`, generated favicon PNG/ICO assets, and the favicon links in `index.html`.
+- Main favicon work happened in generated PNG/ICO assets and the favicon links in `index.html`.
+- Current favicon uses the front-facing Titanic waterline concept generated to match the site's teal hand-drawn ocean-vessel aesthetic.
 - Current live page uses the two local image styles conceptually, but `index.html` still references the remote hosted image URLs for the vessel and wreck.
